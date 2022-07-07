@@ -1,3 +1,4 @@
+import dectiss.ParserTool;
 import js.html.MouseEvent;
 import js.html.DocumentFragment;
 import js.Browser;
@@ -32,17 +33,15 @@ class Test {
 		} catch (e:Dynamic) {}
 
 		compile.addEventListener("click", (e:MouseEvent) -> {
-			var parser = Parser.uncapital.many().then(Parser.space.optionnal()).any();
+			var parser = Parser.uncapital.many().then(Parser.space.optionnal()).times(3);
 
-			switch (parser(input.value, 0)) {
-				case None:
-					result.value = "error!";
-					trace("error!");
-				case Some(data):
-					result.value = data.capture;
-					trace("good!");
-					trace(data.capture);
+			try {
+				var data = ParserTool.parse(parser, input.value);
+				result.value = data;
+			} catch (e:String) {
+				result.value = e;
 			}
+
 			return;
 		});
 

@@ -1,11 +1,28 @@
 package dectiss;
 
+import dectiss.ParseResult;
+
+using StringTools;
+using dectiss.Utils;
+
 class Parser {
-	public static var space = matchSimple.bind(~/\s/mg);
-	public static var digit = matchSimple.bind(~/\d/mg);
-	public static var alpha = matchSimple.bind(~/[a-z]/img);
-	public static var capital = matchSimple.bind(~/[A-Z]/mg);
-	public static var uncapital = matchSimple.bind(~/[a-z]/mg);
+	public static var space = matchEreg.bind(~/\s/mg);
+	public static var digit = matchEreg.bind(~/\d/mg);
+	public static var alpha = matchEreg.bind(~/[a-z]/img);
+	public static var capital = matchEreg.bind(~/[A-Z]/mg);
+	public static var uncapital = matchEreg.bind(~/[a-z]/mg);
+
+	public static function char(rule:String):Rule {
+		return matchChar.bind(rule);
+	}
+
+	public static function string(rule:String):Rule {
+		return matchString.bind(rule);
+	}
+
+	public static function custom(rule:EReg):Rule {
+		return matchEreg.bind(rule);
+	}
 
 	public static function optionnal(rule:Rule):Rule {
 		return matchMultiple.bind(rule, 0, 1);
@@ -28,49 +45,78 @@ class Parser {
 	}
 
 	public static function then(rule:Rule, ruleb:Rule):Rule {
-		return (text:String, start:Int) -> {
-			var pos = 0;
-			var content = "";
-			var capture = rule(text, start);
-
-			switch (capture) {
-				case None:
-					return None;
-				case Some(data):
-					pos += data.capture.length;
-					content += data.capture;
-			};
-
-			var capture = ruleb(text, start + pos);
-
-			return switch (capture) {
-				case None:
-					return None;
-				case Some(data):
-					Some(new ParseData(content + data.capture));
-			};
-		}
+		return group([rule, ruleb]);
 	}
 
 	public static function or(rule:Rule, ruleb:Rule):Rule {
+		return first([rule, ruleb]);
+	}
+
+	public static function group(rules:Array<Rule>):Rule {
 		return (text:String, start:Int) -> {
-			var capture = rule(text, start);
+			var pos = 0;
+			var content:Array<ParseResult> = [];
 
-			switch (capture) {
-				case Some(data):
-					return capture;
-				case None:
-			};
+			for (rule in rules) {
+				var capture = rule(text, start + pos);
 
-			return ruleb(text, start);
+				switch (capture) {
+					case [None]:
+						return capture;
+					case _:
+						for (data in datas) {
+							pos += data.capture.length;
+							content.push(capture);
+						}
+				};
+			}
+
+			return content;
+		}
+	}
+
+	public static function first(rules:Array<Rule>):Rule {
+		return (text:String, start:Int) -> {
+			for (rule in rules) {
+				var capture = rule(text, start);
+
+				switch (capture) {
+					case None:
+						continue;
+					case Some(datas):
+						return capture;
+				};
+			}
+
+			return None;
 		}
 	}
 
 	// logic functions
 
-	private static function matchSimple(rule:EReg, text:String, start:Int):ParseResult {
+	private static function matchEreg(rule:EReg, text:String, start:Int):Array<ParseResult> {
 		if (rule.matchSub(text, start) && rule.matchedPos().pos == start) {
-			return Some(new ParseData(rule.matched(0)));
+			return Some(new ParseData(rule.matched(0))).singleton();
+		}
+
+		return None;
+	}
+
+	private static function matchChar(rule:String, text:String, start:Int):Array<ParseResult> {
+		var part = text.charAt(start);
+
+		if (rule.contains(part)) {
+			return Some(new ParseData(part)).singleton();
+		}
+
+		return None;
+	}
+
+	private static function matchString(rule:String, text:String, start:Int):Array<ParseResult> {
+		var part = text.substr(start, rule.length);
+
+		if (rule == part) {
+			return Some(new ParseData(part)).singleton();
 		}
 
 		return None;
@@ -85,8 +131,11 @@ class Parser {
 			switch (capture) {
 				case None:
 					break;
-				case Some(data):
-					totalCapture += data.capture;
+				case Some(datas):
+					for (data in datas) {
+						totalCapture += data.capture;
+					}
+
 					count++;
 			}
 		}
@@ -95,6 +144,6 @@ class Parser {
 			return None;
 		}
 
-		return Some(new ParseData(totalCapture));
+		return Some(new ParseData(totalCapture).singleton());
 	}
 }
