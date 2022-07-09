@@ -1,0 +1,16 @@
+{
+    "name": "dectiss",
+    "url": "https://github.com/xytp/dectiss",
+    "license": "Public",
+    "tags": [
+        "parser"
+    ],
+    "description": "A parser written in haxe",
+    "version": "0.0.1",
+    "classPath": "dectiss/",
+    "releasenote": "First release.",
+    "contributors": [
+        "HellperKK"
+    ],
+    "dependencies": {}
+}
