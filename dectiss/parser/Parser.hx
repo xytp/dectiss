@@ -6,9 +6,9 @@ import dectiss.parser.ParseResult;
 class Parser {
 	public static function parse<A>(rules:Rule<A>, tokens:Array<LexResult>):A {
 		return switch rules(tokens, 0) {
-			case {capture: AstMatch(value)}: value;
+			case {capture: AstMatch(value), size: s}:
+				if (s == tokens.length) value else throw "error";
 			case x:
-				trace(x);
 				throw "error";
 		};
 	}
