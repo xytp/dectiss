@@ -7,11 +7,15 @@ class Utils {
 		return [value];
 	}
 
-	public static function dataLength(datas:Array<ParseData>):Int {
-		return datas.fold((data, memo) -> memo + data.capture.length, 0);
+	public static macro function literralEReg(content:String) {
+		var escaped = ~/[.*+?$^|(){}\-\[\]]/.map(content, (ereg:EReg) -> '\\${ereg.matched(0)}');
+
+		return macro new EReg($v{escaped}, "");
 	}
 
-	public static function dataJoin(datas:Array<ParseData>):String {
-		return datas.fold((data, memo) -> memo + data.capture, "");
+	public static macro function literralAnyEReg(content:String) {
+		var escaped = ~/[.*+?$^|(){}\-\[\]]/.map(content, (ereg:EReg) -> '\\${ereg.matched(0)}').split("").join("|");
+
+		return macro new EReg($v{escaped}, "");
 	}
 }
