@@ -87,12 +87,24 @@ class Parser {
 				switch res {
 					case {capture: NoMatch}:
 						continue;
-					case {capture: _}:
+					case _:
 						return res;
 				};
 			}
 
 			return {capture: NoMatch, size: 0}
+		}
+	}
+
+	public static function optionnal<A>(rule:Rule<A>):Rule<A> {
+		return (tokens:Array<LexResult>, index:Int) -> {
+			var res = rule(tokens, index);
+			return switch res {
+				case {capture: NoMatch}:
+					return {capture: EmptyMatch, size: 0};
+				case _:
+					return res;
+			};
 		}
 	}
 }
