@@ -1,8 +1,0 @@
-{
-    "path": ".",
-    "extension": [
-        "hx"
-    ],
-    "command": "haxe test.hxml",
-    "delay": 1
-}

@@ -7,8 +7,8 @@
     ],
     "description": "A parser written in haxe",
     "version": "0.0.1",
-    "classPath": "dectiss/",
-    "releasenote": "First release.",
+    "classPath": ".",
+    "releasenote": "First release",
     "contributors": [
         "HellperKK"
     ],

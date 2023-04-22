@@ -23,16 +23,6 @@ class Parser {
 		}
 	}
 
-	public static function tokenText<A>(name:String):Rule<A> {
-		return (tokens:Array<LexResult>, index:Int) -> {
-			if (tokens[index] != null && tokens[index].name == name) {
-				return {capture: TextMatch(tokens[index].value), size: 1};
-			}
-
-			return {capture: NoMatch, size: 0};
-		}
-	}
-
 	public static function tokenThrow<A>(name:String):Rule<A> {
 		return (tokens:Array<LexResult>, index:Int) -> {
 			if (tokens[index] != null && tokens[index].name == name) {
@@ -64,22 +54,6 @@ class Parser {
 		}
 	}
 
-	public static function getText<A>(res:ParseResult<A>):String {
-		return switch res {
-			case TextMatch(text): text;
-			case _:
-				throw "error on getText";
-		};
-	}
-
-	public static function getResult<A>(res:ParseResult<A>):A {
-		return switch res {
-			case AstMatch(value): value;
-			case _:
-				throw "error on getResult";
-		};
-	}
-
 	public static function oneOf<A>(rules:Array<Rule<A>>):Rule<A> {
 		return (tokens:Array<LexResult>, index:Int) -> {
 			for (rule in rules) {
@@ -106,5 +80,12 @@ class Parser {
 					return res;
 			};
 		}
+	}
+
+	public static function getResult<A>(res:ParseResult<A>):A {
+		return switch res {
+			case AstMatch(value): value;
+			case _: null;
+		};
 	}
 }
