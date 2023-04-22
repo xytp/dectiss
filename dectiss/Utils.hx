@@ -7,6 +7,10 @@ class Utils {
 		return [value];
 	}
 
+	public static function arrayLast<A>(arr:Array<A>):A {
+		return arr[arr.length - 1];
+	}
+
 	public static macro function literralEReg(content:String) {
 		var escaped = ~/[.*+?$^|(){}\-\[\]]/.map(content, (ereg:EReg) -> '\\${ereg.matched(0)}');
 

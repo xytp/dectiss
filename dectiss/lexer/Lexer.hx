@@ -31,9 +31,9 @@ class Lexer {
 					rowNumber += lines.length - 1;
 
 					if (lines.length > 1) {
-						colNumber = lines.pop().length;
+						colNumber = Utils.arrayLast(lines).length;
 					} else {
-						colNumber += lines.pop().length;
+						colNumber += Utils.arrayLast(lines).length;
 					}
 
 					check = true;
