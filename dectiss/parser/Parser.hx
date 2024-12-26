@@ -4,8 +4,8 @@ import dectiss.lexer.LexResult;
 import dectiss.parser.ParseResult;
 
 class Parser {
-	public static function parse<A>(rules:Rule<A>, tokens:Array<LexResult>):A {
-		return switch rules(tokens, 0) {
+	public static function parse<A>(rule:Rule<A>, tokens:Array<LexResult>):A {
+		return switch rule(tokens, 0) {
 			case {capture: AstMatch(value), size: s}:
 				if (s == tokens.length) value else throw "error";
 			case x:
@@ -35,16 +35,13 @@ class Parser {
 
 	public static function group<A>(rules:Array<Rule<A>>, transform:(Array<ParseResult<A>>) -> A):Rule<A> {
 		return (tokens:Array<LexResult>, index:Int) -> {
-			var results:Array<ParseResult<A>> = [];
 			var size = 0;
+			var results:Array<ParseResult<A>> = [];
 
 			for (rule in rules) {
 				var res = rule(tokens, index + size);
+				if (res.capture == NoMatch) return res;
 
-				switch res.capture {
-					case NoMatch: return res;
-					default:
-				}
 				size += res.size;
 
 				results.push(res.capture);
